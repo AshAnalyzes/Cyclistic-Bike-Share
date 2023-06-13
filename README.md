@@ -45,7 +45,7 @@ Based on these findings, I would recommend the following courses of action to th
 
 I really enjoyed undertaking both the Google Data Analytics Certificate and this capstone project. The project itself was a great way to challenge myself and further develop the skills I acquired throughout the course. It also highlighted some skills I still need more practice on, so I have put together a list of things I’d like to be able to do better for my next portfolio project: 
 
-1. Increase skills at checking and cleaning the data prior using SQL to analysis. E.g identifying duplicates, editing missing data etc). 
+1. Increase skills at checking and cleaning the data prior using SQL to analysis. E.g identifying duplicates, editing missing data etc. 
 2. Become better at working with and manipulating dates and timestamps in SQL. 
 3. Work on arithmetic operators in SQL to better be able to calculate things like % of totals. 
 4. Rely less on creating additional tables in SQL and learn functions for inserting columns or variables into existing tables. 
