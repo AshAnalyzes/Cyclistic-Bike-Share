@@ -1,0 +1,66 @@
+# merging all files into 1 table 
+
+CREATE TABLE spatial-motif-388503.Bikes.6months AS 
+SELECT * FROM `spatial-motif-388503.Bikes.2022_11`
+UNION ALL
+SELECT * FROM `spatial-motif-388503.Bikes.2022_12`
+UNION ALL
+SELECT * FROM `spatial-motif-388503.Bikes.2023_01`
+UNION ALL
+SELECT * FROM `spatial-motif-388503.Bikes.2023_02`
+UNION ALL
+SELECT * FROM `spatial-motif-388503.Bikes.2023_03`
+UNION ALL
+SELECT * FROM `spatial-motif-388503.Bikes.2023_04`
+
+# removing null values 
+
+SELECT *
+ FROM `spatial-motif-388503.Bikes.6months`
+WHERE NOT (start_station_id IS NULL OR 
+end_station_name IS NULL OR
+ end_station_id IS NULL)
+
+# creating additional columns for month of ride, day of ride, and length of ride 
+
+CREATE TABLE spatial-motif-388503.Bikes.6monthnonulldates AS
+SELECT 
+  rideable_type,
+  EXTRACT(MONTH FROM started_at) AS month_start,
+  EXTRACT (TIME FROM started_at) AS time_start,
+  EXTRACT (DAYOFWEEK FROM started_at) AS day,
+  EXTRACT (MONTH FROM ended_at) AS month_end,
+  EXTRACT (TIME from ended_at) AS time_end,
+  TIMESTAMP_DIFF(ended_at, started_at, second) AS difference_secs,
+  TIMESTAMP_DIFF(ended_at, started_at, minute) AS difference_mins,
+  start_station_name,
+  end_station_name,
+  member_casual,
+ FROM `spatial-motif-388503.Bikes.6monthnonull` 
+
+# inspecting average ride length, shortest ride and longest ride
+
+SELECT 
+  AVG(difference_mins) as AVG_mins,
+  MIN(difference_mins) as min,
+  MAX(difference_mins) as max
+ FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
+
+# counting number of rides with negative values
+
+SELECT COUNT (*) as negative_rides_length
+ FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
+ WHERE difference_mins < 0
+
+# counting number of rides which lasted for longer than 24 hours
+
+SELECT COUNT (*) as rides_longer_than_day
+ FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
+ WHERE difference_mins > 1440
+
+# removing any rides which lasted for <= 0 minutes or > 24 hours
+
+SELECT *
+FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
+WHERE difference_mins > 0 
+AND difference_mins < 1440
