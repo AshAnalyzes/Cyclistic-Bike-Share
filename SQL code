@@ -74,7 +74,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY member_casual, day
 ORDER BY member_casual
 
-# Adding week day names to output
+# adding week day names to output
 
 SELECT CASE
             WHEN day = 1 THEN 'Sunday'
@@ -91,7 +91,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY member_casual, day, hour
 ORDER BY member_casual, day, hour
 
-# Concatenating start and end location names to create route name 
+# concatenating start and end location names to create route name 
 
 SELECT 
   CONCAT (start_station_name,' to ', end_station_name) as route,
@@ -99,4 +99,50 @@ SELECT
   member_casual
 FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
 GROUP BY route, member_casual
+ORDER BY number_of_rides DESC
+
+# counting rides taken by bike type 
+
+SELECT 
+  rideable_type,
+  COUNT (rideable_type) as rides_taken,
+  member_casual
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP by rideable_type, member_casual
+ORDER BY rides_taken DESC
+
+# finding average ride length by membership by weeekday 
+
+SELECT CASE
+            WHEN day = 1 THEN 'Sunday'
+            WHEN day = 2 THEN 'Monday'
+            WHEN day = 3 THEN 'Tuesday'
+            WHEN day = 4 THEN 'Wednesday'
+            WHEN day = 5 THEN 'Thursday'
+            WHEN day = 6 THEN 'Friday'
+            WHEN day = 7 THEN 'Saturday' END AS day_of_the_week,
+            ROUND(AVG(difference_mins),2) AS avg_ride_length,
+            member_casual,
+            EXTRACT(hour FROM time_start) AS hour,
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP BY member_casual, day, hour
+ORDER BY member_casual, day, hour 
+
+# adding route to the average ride length by membership by weekday data
+
+SELECT CASE
+            WHEN day = 1 THEN 'Sunday'
+            WHEN day = 2 THEN 'Monday'
+            WHEN day = 3 THEN 'Tuesday'
+            WHEN day = 4 THEN 'Wednesday'
+            WHEN day = 5 THEN 'Thursday'
+            WHEN day = 6 THEN 'Friday'
+            WHEN day = 7 THEN 'Saturday' END AS day_of_the_week,
+            CONCAT (start_station_name,' to ', end_station_name) as route,
+            COUNT(rideable_type) as number_of_rides,
+            rideable_type,
+            member_casual,
+            EXTRACT(hour FROM time_start) AS hour,
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP BY member_casual, day, hour, route, rideable_type
 ORDER BY number_of_rides DESC
