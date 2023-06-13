@@ -64,3 +64,39 @@ SELECT *
 FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
 WHERE difference_mins > 0 
 AND difference_mins < 1440
+
+# counting rides taken by members and casual users on each day of the week
+
+SELECT COUNT(rideable_type) as rides_taken,
+  day,
+  member_casual,
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP BY member_casual, day
+ORDER BY member_casual
+
+# Adding week day names to output
+
+SELECT CASE
+            WHEN day = 1 THEN 'Sunday'
+            WHEN day = 2 THEN 'Monday'
+            WHEN day = 3 THEN 'Tuesday'
+            WHEN day = 4 THEN 'Wednesday'
+            WHEN day = 5 THEN 'Thursday'
+            WHEN day = 6 THEN 'Friday'
+            WHEN day = 7 THEN 'Saturday' END AS day_of_the_week,
+            EXTRACT(hour FROM time_start) AS hour,
+            COUNT(*) AS rides_taken,
+            member_casual,
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP BY member_casual, day, hour
+ORDER BY member_casual, day, hour
+
+# Concatenating start and end location names to create route name 
+
+SELECT 
+  CONCAT (start_station_name,' to ', end_station_name) as route,
+  COUNT(rideable_type) as number_of_rides,
+  member_casual
+FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes` 
+GROUP BY route, member_casual
+ORDER BY number_of_rides DESC
