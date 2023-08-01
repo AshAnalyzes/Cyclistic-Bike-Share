@@ -1,4 +1,11 @@
-# merging all files into 1 table 
+/*
+Covid 19 Data Exploration 
+
+Skills used: Joins, CTE's, String Functions, Date and Time Functions, Aggregate Functions. 
+
+*/
+
+-- merging all files into 1 table 
 
 CREATE TABLE spatial-motif-388503.Bikes.6months AS 
 SELECT * FROM `spatial-motif-388503.Bikes.2022_11`
@@ -13,7 +20,7 @@ SELECT * FROM `spatial-motif-388503.Bikes.2023_03`
 UNION ALL
 SELECT * FROM `spatial-motif-388503.Bikes.2023_04`
 
-# removing null values 
+-- removing null values 
 
 SELECT *
  FROM `spatial-motif-388503.Bikes.6months`
@@ -21,7 +28,7 @@ WHERE NOT (start_station_id IS NULL OR
 end_station_name IS NULL OR
  end_station_id IS NULL)
 
-# creating additional columns for month of ride, day of ride, and length of ride 
+-- creating additional columns for month of ride, day of ride, and length of ride 
 
 CREATE TABLE spatial-motif-388503.Bikes.6monthnonulldates AS
 SELECT 
@@ -38,7 +45,7 @@ SELECT
   member_casual,
  FROM `spatial-motif-388503.Bikes.6monthnonull` 
 
-# inspecting average ride length, shortest ride and longest ride
+-- inspecting average ride length, shortest ride and longest ride
 
 SELECT 
   AVG(difference_mins) as AVG_mins,
@@ -46,26 +53,26 @@ SELECT
   MAX(difference_mins) as max
  FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
 
-# counting number of rides with negative values
+-- counting number of rides with negative values
 
 SELECT COUNT (*) as negative_rides_length
  FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
  WHERE difference_mins < 0
 
-# counting number of rides which lasted for longer than 24 hours
+-- counting number of rides which lasted for longer than 24 hours
 
 SELECT COUNT (*) as rides_longer_than_day
  FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
  WHERE difference_mins > 1440
 
-# removing any rides which lasted for <= 0 minutes or > 24 hours
+-- removing any rides which lasted for <= 0 minutes or > 24 hours
 
 SELECT *
 FROM `spatial-motif-388503.Bikes.6monthnonulldates` 
 WHERE difference_mins > 0 
 AND difference_mins < 1440
 
-# counting rides taken by members and casual users on each day of the week
+-- counting rides taken by members and casual users on each day of the week
 
 SELECT COUNT(rideable_type) as rides_taken,
   day,
@@ -74,7 +81,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY member_casual, day
 ORDER BY member_casual
 
-# adding week day names to output
+-- adding week day names to output
 
 SELECT CASE
             WHEN day = 1 THEN 'Sunday'
@@ -91,7 +98,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY member_casual, day, hour
 ORDER BY member_casual, day, hour
 
-# concatenating start and end location names to create route name 
+-- concatenating start and end location names to create route name 
 
 SELECT 
   CONCAT (start_station_name,' to ', end_station_name) as route,
@@ -101,7 +108,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY route, member_casual
 ORDER BY number_of_rides DESC
 
-# counting rides taken by bike type 
+-- counting rides taken by bike type 
 
 SELECT 
   rideable_type,
@@ -111,7 +118,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP by rideable_type, member_casual
 ORDER BY rides_taken DESC
 
-# finding average ride length by membership by weeekday 
+-- finding average ride length by membership by weeekday 
 
 SELECT CASE
             WHEN day = 1 THEN 'Sunday'
@@ -128,7 +135,7 @@ FROM `spatial-motif-388503.Bikes.6monthnonulldates_cleanedtimes`
 GROUP BY member_casual, day, hour
 ORDER BY member_casual, day, hour 
 
-# adding route to the average ride length by membership by weekday data
+-- adding route to the average ride length by membership by weekday data
 
 SELECT CASE
             WHEN day = 1 THEN 'Sunday'
